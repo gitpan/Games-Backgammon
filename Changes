@@ -27,3 +27,8 @@ Revision history for Perl extension Games::Backgammon.
 0.06  Tue Feb 11
         - tried to add as many possibilities to explain all different gcc versions
           that assert.h is already included :-)
+
+0.07  Fri Feb 14
+        - bundled whole the source code of gnubg into this module
+        - let create a static library "libgnubg.a" of them
+          and use it with Inline::C

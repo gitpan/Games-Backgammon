@@ -8,14 +8,19 @@ require Exporter;
 
 our @ISA = qw(Exporter);
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 use List::Util qw/min max sum first/;
 use Data::Dumper;
-use Inline C            => 'DATA',
-           DISABLE      => 'CLEAN_AFTER_BUILD',
-           NAME         => 'Games::Backgammon',
-           VERSION      => '0.06';
+
+use Inline C       => 'DATA',
+           LIBS    => '-L../../../../Lgnubg -L../../../../gnubg/lib -lgnubg ' .
+                      '-Lgnubg -Lgnubg/lib',
+           INC     => "-I../../../../gnubg -I../../../../gnubg/lib",
+           NAME    => 'Games::Backgammon',
+           VERSION => '0.07',
+           MYEXTLIB => '../../../../gnubg/libgnubg.a';
+
 use Carp;
 
 
@@ -287,6 +292,11 @@ Returning the chances in a one checker race for each position.
 
 =back
 
+Alltough, I have not yet implemented many functions of gnubg,
+I have bundled whole the project with this module.
+I plan to implement soon many more functions,
+and currently I want to see whether the bundling also works with CPAN.
+
 =head1 SEE ALSO
 
 Have also a look to the great open source project gnubg of Gary Wong.
@@ -307,20 +317,8 @@ Please read the COPYING file of this distributation for details.
 __DATA__
 __C__
 
-/* 
-   Avoid that a #include <assert.h> statement redefines Perl's assert definition
-   by simulating that this module is already loaded. :-)
-*/
-#define __ASSERT_H
-#define  _ASSERT_H
-#define   ASSERT_H
-
-#define __assert_h
-#define  _assert_h
-#define   assert_h
-
 #include <errno.h>
-#include "gnubg/positionid.c"
+#include <positionid.h>
 
 typedef struct {
     int anBoard[ 2 ][ 25 ];
