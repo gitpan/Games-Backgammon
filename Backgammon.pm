@@ -4,14 +4,22 @@ use 5.006001;
 use strict;
 use warnings;
 
-use List::Util qw/min max sum first/;
-use Carp;
-
 require Exporter;
 
 our @ISA = qw(Exporter);
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
+
+use List::Util qw/min max sum first/;
+use Data::Dumper;
+use Inline C       => 'DATA',
+           NAME    => 'Games::Backgammon',
+           VERSION => '0.03';
+use Carp;
+
+
+local $Data::Dumper::Indent = undef;
+our %POINT = map {($_ => 1)} (1 .. 24, 'bar', 'off');
 
 sub new {
     my ($class, %arg) = @_;
@@ -37,32 +45,25 @@ sub set_position {
     my %white  = %{$pos{whitepoints} || {}};
     my %black  = %{$pos{blackpoints} || {}};
     
-    $white{off} ||= max(0, 15 - _checkers_in_play(%white));
-    $black{off} ||= max(0, 15 - _checkers_in_play(%black));
+    my @white = map {$white{$_} || 0} (1 .. 24, 'bar');
+    my @black = map {$black{$_} || 0} (1 .. 24, 'bar');
     
-    carp "White has > 15 checkers in play" if _checkers_in_play(%white) > 15;
-    carp "Black has > 15 checkers in play" if _checkers_in_play(%black) > 15;
+    croak "Illegal Position specified (" . Dumper(\%pos) . ")"  
+        unless _CheckPosition( [@white, @black] );
     
-    if (my @unknown_points = grep !m/([1-9]|1\d|2[0-4]|bar|off)/,
-                             keys %white, keys %black)
-    { croak "Don't know what you mean for points with '@unknown_points'" }                            
+    my @unknown_points = grep !$POINT{$_}, (keys %white, keys %black);
+    croak "Unknown or unnecessary white or black points specified (@unknown_points)"
+        if @unknown_points;
     
-    if (my @collisions = grep {$white{$_} && $black{25-$_}} (1 .. 24)) {
-        croak "White checkers on @collisions collide with " .
-              "black ones on the same points";
-    }
-    
-    croak "Illegal position: Both players are on the bar " .
-          "and are on the bar"
-        if grep($_, (@white{1..6,'bar'}, @black{1..6,'bar'})) >= 2 * 6 + 2;
-    
-    $self->{whitepoints} = \%white;
-    $self->{blackpoints} = \%black;
+    $_->{off} = 15 - _checkers_in_play(%$_) for (\%white, \%black);
     
     my $atroll = exists $pos{atroll} ? lc($pos{atroll}) : 'black';
     croak "The player at roll can be black or white -- nothing else"
         unless($atroll =~ /^(black|white)$/);
-    $self->{atroll} = $atroll;
+        
+    $self->{whitepoints} = \%white;
+    $self->{blackpoints} = \%black;
+    $self->{atroll}      = $atroll;
 }
 
 sub _checkers_in_play {
@@ -95,7 +96,6 @@ sub atroll {
 
 1;
 
-__END__
 =head1 NAME
 
 Games::Backgammon - Perl extension for modelling backgammon games
@@ -131,6 +131,8 @@ Games::Backgammon - Perl extension for modelling backgammon games
 This module helps modelling backgammon games.
 It is not basically intented to play backgammon for itself.
 I just wrote it to analyze (long) racings in a convenient way.
+
+Most of the routines are just wrappers to the gnubg program of Gary Wong.
 
 =head2 FUNCTIONS
 
@@ -173,8 +175,8 @@ checkers of each side are. The point numbers are always regarded from the
 player's view. So point x for white is point (25-x) for black. Please take care
 that black's and white's checkers are not at the same point (what would result
 in an error). It's also forbidden that both players have a closed board and
-both players have checkers on the bar. Specifying more than 15 checkers for a
-side is allowed, but it gives a warning. 
+both players have checkers on the bar. Specifying more than 15 checkers is not 
+allowed.
 
 Please also look also to the following example:
 
@@ -204,13 +206,10 @@ Please also look also to the following example:
  
 The number of checkers at the bar is defined with 
 C<'bar' => $nr_of_checkers_at_bar>,
-while the number of checkers off the game is defined with
-C<'off' => $nr_of_checkers_off>.
 
-The default for the points 1 .. 24 and the bar is 0,
-while the default for the checkers off the game is 
-C<max(0,15 - sum(all over points)>.
-
+Note, that you neither needn't nor mustn't define the checkers off the game.
+(They are simply calculated by the calculation of 15 - checkers still left in
+the game).
 The atroll parameter has to be either 'white' or 'black' (whether upper/lower
 case is unimportant) [the default is 'black'].
 
@@ -265,7 +264,25 @@ Janek Schleicher, E<lt>bigj@kamelfreund.deE<gt>
 
 Copyright 2003 by Janek Schleicher
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+This library is free software under the GPL.
+Please read the COPYING file of this distributation for details.
 
 =cut
+
+__DATA__
+__C__
+
+#include <errno.h>
+#include "gnubg/positionid.c"
+
+int _CheckPosition(AV* a) {
+    int i, j;
+    int anBoard[ 2 ][ 25 ];
+    for (i = 0; i < 2; i++) {
+        for (j = 0; j < 25; j++) {
+            SV** sv = av_fetch(a,25*i + j,0);
+            anBoard[ i ][ j ] = SvIV(*sv);
+        }
+    }
+    return CheckPosition(anBoard) == 0;
+ }

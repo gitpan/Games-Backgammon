@@ -5,10 +5,9 @@ use warnings;
 
 use Games::Backgammon;
 
-use Test::More tests => 183;
+use Test::More tests => 181;
 use Test::Differences;
 use Test::Exception;
-use Test::Warn;
 
 use Data::Dumper;
 
@@ -95,16 +94,10 @@ for (qw/black white/) {
             "Should die if both have a checker on the bar against bothside closed boards ($_ atroll)";
 }
 
-dies_ok {Games::Backgammon->new(position => {whitepoints => {blabla => 1}})}
+throws_ok {Games::Backgammon->new(position => {whitepoints => {blabla => 1}})}
+        qr/unknown/i,
         "Should die with unkown points";
 
-warning_like {Games::Backgammon->new(position => TWENTY_CHECKERS)}
-             {carped => qr/15|fifteen/},
-             "More than 15 checkers should produce a warning";
-
-{
-    local $SIG{__WARN__} = sub { };
-    my $game = Games::Backgammon->new(position => TWENTY_CHECKERS);
-    is $game->whitepoints('off'), 0, "With twenty checkers in game exactly 0 are off";
-    is $game->blackpoints('off'),14, "The other has all but 1 off => 14 off";
-}
+throws_ok {Games::Backgammon->new(position => TWENTY_CHECKERS)}
+        qr/illegal\s*position/i,
+        "More than 15 checkers should result in an illegal position";

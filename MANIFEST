@@ -3,5 +3,8 @@ Changes
 Makefile.PL
 MANIFEST
 README
+COPYING
 t/1.t
 t/set_position.t
+gnubg/positionid.h
+gnubg/positionid.c

@@ -1,16 +1,9 @@
-Games/Backgammon version 0.01
+Games/Backgammon version 0.03
 =============================
 
-The README is used to introduce the module and provide instructions on
-how to install the module, any machine dependencies it may have (for
-example C compilers and installed libraries) and any other information
-that should be provided before the module is installed.
-
-A README file is required for CPAN modules since CPAN extracts the
-README file from a module distribution so that people browsing the
-archive can use it get an idea of the modules uses. It is usually a
-good idea to provide version information here so that people can
-decide whether fixes for the module are worth downloading.
+This module helps to analyze and modelling backgammon games. 
+Most routines are simple wrappers around the open source project gnubg
+of Gary Wong.
 
 INSTALLATION
 
@@ -21,11 +14,23 @@ To install this module type the following:
    make test
    make install
 
+You will need the Inline module and a C compiler as there are many routines
+written in C.[A
+
 DEPENDENCIES
 
 This module requires these other modules and libraries:
 
-  blah blah blah
+   Inline            => 0.44,
+   List::Util        => 1.07,
+   Carp              => 0,
+   Data::Dumper      => 0,
+
+For testing also
+
+   Test::More        => 0,
+   Test::Differences => 0.45,
+   Test::Exception   => 0.12,
 
 COPYRIGHT AND LICENCE
 
@@ -33,6 +38,5 @@ Put the correct copyright and licence information here.
 
 Copyright (C) 2003 Janek Schleicher
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself. 
-
+This library is free software under the Gnu Public License.
+Please read the COPYING file for details.

@@ -7,3 +7,8 @@ Revision history for Perl extension Games::Backgammon.
 
 0.02  Tue Feb 6
         - fixed position settings to forbid that both players are at the bar while closed boards
+
+0.03  Tue Feb 6
+        - use now the routines of gnubg instead of own written
+        - more than 15 checkers are forbidden now!
+        - changed license to GPL
