@@ -8,13 +8,14 @@ require Exporter;
 
 our @ISA = qw(Exporter);
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 use List::Util qw/min max sum first/;
 use Data::Dumper;
-use Inline C       => 'DATA',
-           NAME    => 'Games::Backgammon',
-           VERSION => '0.04';
+use Inline C            => 'DATA',
+           DISABLE      => 'CLEAN_AFTER_BUILD',
+           NAME         => 'Games::Backgammon',
+           VERSION      => '0.05';
 use Carp;
 
 
@@ -254,12 +255,37 @@ None by default.
 
 Please inform me about every one you can find.
 
+There could be problems to compile/install this module.
+I used gcc version 3.2 and I would recommend to have at least 2.95.
+
 =head1 TODO
 
 A lot. I'm working currently on it.
 
 Please feel free to suggest me anything you'll need.
 (I will do it on the top of my priority list).
+
+My next planned steps are:
+
+=over
+
+=item $game->legal_moves($n0, $n1)
+
+Returning a list of all legal moves in the current position
+with the roll ($n0, $n1).
+(just a wrapper to gnubg's GenerateMoves)
+Every move will be considered as a hash (or object) with a move description,
+the resulting board position, the moved checkers, used pips.
+
+=item Game::Backgammon::ideal_bearoff_position($pips)
+
+Returning the ideal bearoff position for a given pip count for one man
+
+=item Game::Backgammon::one_checker_race($whitepip,$blackpip)
+
+Returning the chances in a one checker race for each position.
+
+=back
 
 =head1 SEE ALSO
 
@@ -280,6 +306,12 @@ Please read the COPYING file of this distributation for details.
 
 __DATA__
 __C__
+
+/* 
+   Avoid that a #include <assert.h> statement redefines Perl's assert definition
+   by simulating that this module is already loaded. :-)
+*/
+#define __ASSERT_H
 
 #include <errno.h>
 #include "gnubg/positionid.c"
@@ -303,20 +335,14 @@ SV* _CreateInternalPosition(AV* a) {
 void __init(HV* self) {
     gnubg_t* bg = (gnubg_t *) malloc(sizeof(bg));
     SV* sv = newSVpv((char*) bg,sizeof(gnubg_t));
-    assert(SvPOK(sv));
     hv_store(self,"__gnubg",7,sv,0);
 }
 
-#define LOAD_BG_STRUCTURE                     \
-    assert(SvTYPE(self) == SVt_PVHV);         \
-    SV** __sv = hv_fetch(self,"__gnubg",7,0); \
-    assert(SvOK(*__sv));                      \
-    STRLEN len;                               \
+void __set_position(HV* self, AV* a) {
+    SV** __sv = hv_fetch(self,"__gnubg",7,0); 
+    STRLEN len;                               
     gnubg_t *bg = (gnubg_t*) SvPV(*__sv,len);
 
-
-void __set_position(HV* self, AV* a) {
-    LOAD_BG_STRUCTURE
     assert(SvTYPE(a) == SVt_PVAV);
     
     int i,j;    
@@ -332,11 +358,17 @@ void __set_position(HV* self, AV* a) {
 
 
 int __check_position(HV* self) {
-    LOAD_BG_STRUCTURE    
+    SV** __sv = hv_fetch(self,"__gnubg",7,0); 
+    STRLEN len;                               
+    gnubg_t *bg = (gnubg_t*) SvPV(*__sv,len);
+
     return CheckPosition(bg->anBoard) == 0;
 }
 
 char* position_id(HV* self) {
-    LOAD_BG_STRUCTURE    
+    SV** __sv = hv_fetch(self,"__gnubg",7,0); 
+    STRLEN len;                               
+    gnubg_t *bg = (gnubg_t*) SvPV(*__sv,len);
+
     return PositionID(bg->anBoard);
 }
