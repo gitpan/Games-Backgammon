@@ -5,3 +5,5 @@ Revision history for Perl extension Games::Backgammon.
 		-b5.6.1 -XA Games::Backgammon
         - implemented only a rudimentary possibility to initialize a position
 
+0.02  Tue Feb 6
+        - fixed position settings to forbid that both players are at the bar while closed boards

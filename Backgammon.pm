@@ -11,7 +11,7 @@ require Exporter;
 
 our @ISA = qw(Exporter);
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 sub new {
     my ($class, %arg) = @_;
@@ -52,11 +52,17 @@ sub set_position {
               "black ones on the same points";
     }
     
+    croak "Illegal position: Both players are on the bar " .
+          "and are on the bar"
+        if grep($_, (@white{1..6,'bar'}, @black{1..6,'bar'})) >= 2 * 6 + 2;
+    
     $self->{whitepoints} = \%white;
     $self->{blackpoints} = \%black;
     
-    ($self->{atroll} = lc $pos{atroll} || 'black') =~ /^(black|white)$/i or
-        croak "The player at roll can be black or white -- nothing else";    
+    my $atroll = exists $pos{atroll} ? lc($pos{atroll}) : 'black';
+    croak "The player at roll can be black or white -- nothing else"
+        unless($atroll =~ /^(black|white)$/);
+    $self->{atroll} = $atroll;
 }
 
 sub _checkers_in_play {
@@ -166,8 +172,11 @@ With the C<whitepoints> and <blackpoints> arguments, you can define where the
 checkers of each side are. The point numbers are always regarded from the
 player's view. So point x for white is point (25-x) for black. Please take care
 that black's and white's checkers are not at the same point (what would result
-in an error). Specifying more than 15 checkers for a side is allowed, but it
-gives a warning. Please also look to the following example. 
+in an error). It's also forbidden that both players have a closed board and
+both players have checkers on the bar. Specifying more than 15 checkers for a
+side is allowed, but it gives a warning. 
+
+Please also look also to the following example:
 
   GNU Backgammon  Position ID: sOfgEwDg8+AIBg
   +13-14-15-16-17-18------19-20-21-22-23-24-+     O: gnubg
@@ -225,11 +234,24 @@ Similar to C<whitepoints>.
 
 =item my $atroll = $game->atroll;
 
+Returns the player who is at roll
+
 =back
 
 =head2 EXPORT
 
 None by default.
+
+=head1 BUGS
+
+Please inform me about every one you can find.
+
+=head1 TODO
+
+A lot. I'm working currently on it.
+
+Please feel free to suggest me anything you'll need.
+(I will do it on the top of my priority list).
 
 =head1 SEE ALSO
 
@@ -244,6 +266,6 @@ Janek Schleicher, E<lt>bigj@kamelfreund.deE<gt>
 Copyright 2003 by Janek Schleicher
 
 This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself. 
+it under the same terms as Perl itself.
 
 =cut

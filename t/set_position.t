@@ -5,7 +5,7 @@ use warnings;
 
 use Games::Backgammon;
 
-use Test::More tests => 131;
+use Test::More tests => 183;
 use Test::Differences;
 use Test::Exception;
 use Test::Warn;
@@ -15,10 +15,6 @@ use Data::Dumper;
 use constant IDEAL_40 => {3 => 1, 4 => 1, 5 => 3, 6 => 3};
 use constant IDEAL_79 => {4 => 3, 5 => 5, 6 => 7};
 
-use constant CHECKER_AT_SAME_POINTS => 
-    {whitepoints => {1 => 1}, blackpoints => {24 => 1}, atroll => 'black'};
-use constant NEITHER_BLACK_OR_WHITE_AT_ROLL => 
-    {whitepoints => {1 => 1}, blackpoints => {1 => 1},  atroll=> 'X'};
 use constant TWENTY_CHECKERS => {
     whitepoints => {1 => 1, 2 => 19},
     blackpoints => {6 => 1},
@@ -31,6 +27,13 @@ use constant DEFAULT_BOARDS => (
     {whitepoints => {off => 15}, blackpoints => {off => 15}},
     {atroll => 'black'},
     {},
+);
+
+use constant STARTING_POS => (
+    map {($_ . "points" => {6 => 5, 8 => 3, 13 => 5, 24 => 2})} qw/white black/
+);
+use constant BOTH_PLAYERS_WITH_CLOSED_BOARD_AND_ON_BAR => (
+    map {$_ . "points" => {map({$_ => 2} (1 .. 7)), bar => 1}} qw/white black/,
 );
 
 foreach my $atroll ('BLACK', 'WHITE') {
@@ -69,9 +72,27 @@ foreach my $pos (DEFAULT_BOARDS) {
     is $game->atroll, 'black', "Black is at roll by default";
 }
 
-for (CHECKER_AT_SAME_POINTS, NEITHER_BLACK_OR_WHITE_AT_ROLL) {
-    dies_ok {Games::Backgammon->new(position => $_)} "Should die ..."
-    or diag "Should die with " . Dumper($_);
+for ("X", "weiss", "", undef) {
+    dies_ok {Games::Backgammon->new(position => {STARTING_POS, atroll => $_})}
+            "Should die if neither white nor black is at roll, but " . Dumper($_);
+}
+
+foreach my $atroll (qw/black white/) {
+    for my $point (1 .. 24) {
+        my %p = (
+            whitepoints => {$point => 1},
+            blackpoints => {25 - $point => 1},
+            atroll      => $atroll
+        );
+        dies_ok {Games::Backgammon->new(position => \%p)}
+                "Should die if both have a checker at the $point, $atroll atroll";
+    }
+}
+
+for (qw/black white/) {
+    my %p = (BOTH_PLAYERS_WITH_CLOSED_BOARD_AND_ON_BAR, atroll => $_);
+    dies_ok {Games::Backgammon->new(position => \%p)}
+            "Should die if both have a checker on the bar against bothside closed boards ($_ atroll)";
 }
 
 dies_ok {Games::Backgammon->new(position => {whitepoints => {blabla => 1}})}
