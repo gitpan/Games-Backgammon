@@ -8,7 +8,7 @@ require Exporter;
 
 our @ISA = qw(Exporter);
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 use List::Util qw/min max sum first/;
 use Data::Dumper;
@@ -16,7 +16,7 @@ use Data::Dumper;
 use Inline C       => 'DATA',
            INC     => '-I../../../../',
            NAME    => 'Games::Backgammon',
-           VERSION => '0.10';
+           VERSION => '0.11';
 
 use Carp;
 
@@ -384,24 +384,28 @@ char* position_id(HV* self) {
 }
 
 void __generate_moves(HV* self, SV* sv_n1, SV* sv_n2) {
-    SV** __sv = hv_fetch(self,"__gnubg",7,0);
-    STRLEN len;
-    gnubg_t *bg = (gnubg_t*) SvPV(*__sv,len);
-    
+    SV** __sv;
+    gnubg_t *bg;
     int i,j;
     char sz[40];
-
-    int n1 = SvIV(sv_n1);
-    int n2 = SvIV(sv_n2);
-    
+    int n1, n2;
+    move* m;
     movelist pml;
-    GenerateMoves(&pml, bg->anBoard, n1, n2, FALSE);
-    
+
     Inline_Stack_Vars;
     Inline_Stack_Reset;
 
+    __sv = hv_fetch(self,"__gnubg",7,0);
+    STRLEN len;
+    bg = (gnubg_t*) SvPV(*__sv,len);
+    
+    n1 = SvIV(sv_n1);
+    n2 = SvIV(sv_n2);
+    
+    GenerateMoves(&pml, bg->anBoard, n1, n2, FALSE);
+    
     for (i = 0; i < pml.cMoves; i++) {
-        move* m = (pml.amMoves + i);
+        m = (pml.amMoves + i);
         FormatMove(sz,bg->anBoard,m->anMove);
         Inline_Stack_Push(sv_2mortal(newSVpv(sz,0)));
     }
