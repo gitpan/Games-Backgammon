@@ -1,9 +1,11 @@
-Games/Backgammon version 0.03
+Games/Backgammon version 0.04
 =============================
 
 This module helps to analyze and modelling backgammon games. 
 Most routines are simple wrappers around the open source project gnubg
 of Gary Wong.
+
+Note that it is not finished yet and I'm currently working on the module.
 
 INSTALLATION
 
@@ -33,8 +35,6 @@ For testing also
    Test::Exception   => 0.12,
 
 COPYRIGHT AND LICENCE
-
-Put the correct copyright and licence information here.
 
 Copyright (C) 2003 Janek Schleicher
 

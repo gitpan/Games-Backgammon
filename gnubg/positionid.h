@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
- * $Id: positionid.h,v 1.18 2002/12/15 22:11:53 thyssen Exp $
+ * $Id: positionid.h,v 1.1 2003/02/08 09:12:44 janek Exp $
  */
 
 #ifndef _POSITIONID_H_

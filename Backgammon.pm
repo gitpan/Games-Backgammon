@@ -8,13 +8,13 @@ require Exporter;
 
 our @ISA = qw(Exporter);
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 use List::Util qw/min max sum first/;
 use Data::Dumper;
 use Inline C       => 'DATA',
            NAME    => 'Games::Backgammon',
-           VERSION => '0.03';
+           VERSION => '0.04';
 use Carp;
 
 
@@ -37,6 +37,7 @@ sub new {
 
 sub _init {
     my ($self, %arg) = @_;
+    $self->__init;
     $self->set_position(%{$arg{position}});
 }
 
@@ -45,22 +46,24 @@ sub set_position {
     my %white  = %{$pos{whitepoints} || {}};
     my %black  = %{$pos{blackpoints} || {}};
     
+    my $atroll = exists $pos{atroll} ? lc($pos{atroll}) : 'black';
+    croak "The player at roll can be black or white -- nothing else"
+        unless($atroll =~ /^(black|white)$/);
+    
     my @white = map {$white{$_} || 0} (1 .. 24, 'bar');
     my @black = map {$black{$_} || 0} (1 .. 24, 'bar');
+    my $board = $atroll eq 'black' ? [@white, @black] : [@black,@white];
     
-    croak "Illegal Position specified (" . Dumper(\%pos) . ")"  
-        unless _CheckPosition( [@white, @black] );
-    
+    $self->__set_position($board);
+    croak "Illegal Position specified (" . Dumper(\%pos) . ")"
+        unless $self->__check_position;
+        
     my @unknown_points = grep !$POINT{$_}, (keys %white, keys %black);
     croak "Unknown or unnecessary white or black points specified (@unknown_points)"
         if @unknown_points;
     
     $_->{off} = 15 - _checkers_in_play(%$_) for (\%white, \%black);
     
-    my $atroll = exists $pos{atroll} ? lc($pos{atroll}) : 'black';
-    croak "The player at roll can be black or white -- nothing else"
-        unless($atroll =~ /^(black|white)$/);
-        
     $self->{whitepoints} = \%white;
     $self->{blackpoints} = \%black;
     $self->{atroll}      = $atroll;
@@ -93,7 +96,6 @@ sub atroll {
     return $self->{atroll};
 }
 
-
 1;
 
 =head1 NAME
@@ -111,7 +113,8 @@ Games::Backgammon - Perl extension for modelling backgammon games
       atroll      => 'black',
     }
   );
-  
+
+  print "Position ID: ", $game->position_id;  
   print "Checkers off from white", $game->whitepoints('off');
   
   ## Not implemented yet
@@ -235,6 +238,12 @@ Similar to C<whitepoints>.
 
 Returns the player who is at roll
 
+=item my $id = $game->position_id
+
+Returns the position id of the current position from the view of the player 
+at roll. This id is the same like generated from gnubg. Please look to the
+documentation of gnubg to get a detailed explanation.
+
 =back
 
 =head2 EXPORT
@@ -275,7 +284,11 @@ __C__
 #include <errno.h>
 #include "gnubg/positionid.c"
 
-int _CheckPosition(AV* a) {
+typedef struct {
+    int anBoard[ 2 ][ 25 ];
+} gnubg_t;
+
+SV* _CreateInternalPosition(AV* a) {
     int i, j;
     int anBoard[ 2 ][ 25 ];
     for (i = 0; i < 2; i++) {
@@ -284,5 +297,46 @@ int _CheckPosition(AV* a) {
             anBoard[ i ][ j ] = SvIV(*sv);
         }
     }
-    return CheckPosition(anBoard) == 0;
- }
+    return newSVpv((char*) anBoard, sizeof(anBoard));
+}
+
+void __init(HV* self) {
+    gnubg_t* bg = (gnubg_t *) malloc(sizeof(bg));
+    SV* sv = newSVpv((char*) bg,sizeof(gnubg_t));
+    assert(SvPOK(sv));
+    hv_store(self,"__gnubg",7,sv,0);
+}
+
+#define LOAD_BG_STRUCTURE                     \
+    assert(SvTYPE(self) == SVt_PVHV);         \
+    SV** __sv = hv_fetch(self,"__gnubg",7,0); \
+    assert(SvOK(*__sv));                      \
+    STRLEN len;                               \
+    gnubg_t *bg = (gnubg_t*) SvPV(*__sv,len);
+
+
+void __set_position(HV* self, AV* a) {
+    LOAD_BG_STRUCTURE
+    assert(SvTYPE(a) == SVt_PVAV);
+    
+    int i,j;    
+    for (i = 0; i < 2; i++) {
+        for (j = 0; j < 25; j++) {
+            SV** sv = av_fetch(a,25*i + j,0);
+            assert(SvOK(*sv));
+            assert(SvTYPE(*sv) == SVt_IV);
+            bg->anBoard[ i ][ j ] = SvIV(*sv);
+        }
+    }
+}
+
+
+int __check_position(HV* self) {
+    LOAD_BG_STRUCTURE    
+    return CheckPosition(bg->anBoard) == 0;
+}
+
+char* position_id(HV* self) {
+    LOAD_BG_STRUCTURE    
+    return PositionID(bg->anBoard);
+}

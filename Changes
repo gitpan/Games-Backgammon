@@ -1,14 +1,18 @@
 Revision history for Perl extension Games::Backgammon.
 
-0.01  Tue Feb  5 
+0.01  Thu Feb  5 
 	- original version; created by h2xs 1.22 with options
 		-b5.6.1 -XA Games::Backgammon
         - implemented only a rudimentary possibility to initialize a position
 
-0.02  Tue Feb 6
+0.02  Fri Feb 6
         - fixed position settings to forbid that both players are at the bar while closed boards
 
-0.03  Tue Feb 6
+0.03  Fri Feb 6
         - use now the routines of gnubg instead of own written
         - more than 15 checkers are forbidden now!
         - changed license to GPL
+
+0.04  Tue Feb 11
+        - function position_id from gnubg used
+        - internal rewritten of the inlined c code in a more object oriented way
