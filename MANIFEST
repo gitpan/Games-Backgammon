@@ -1,0 +1,7 @@
+Backgammon.pm
+Changes
+Makefile.PL
+MANIFEST
+README
+t/1.t
+t/set_position.t

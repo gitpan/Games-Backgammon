@@ -1,0 +1,7 @@
+Revision history for Perl extension Games::Backgammon.
+
+0.01  Tue Feb  5 
+	- original version; created by h2xs 1.22 with options
+		-b5.6.1 -XA Games::Backgammon
+        - implemented only a rudimentary possibility to initialize a position
+
