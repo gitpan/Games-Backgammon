@@ -1,4 +1,4 @@
-Games/Backgammon version 0.07
+Games/Backgammon version 0.08
 =============================
 
 This module helps to analyze and modelling backgammon games. 
@@ -19,15 +19,6 @@ To install this module type the following:
 You will need the Inline module and a C compiler as there are many routines
 written in C.
 
-As this module is (or has to become) a wrapper around gnubg,
-first gnubg is compiled. That will happen when you call
-perl Makefile.PL
-
-NOTE
-
-gnubg is itself some mega bytes big.
-As I have also bundled a weight file (that would be necessary so or so),
-this module will need some time to download!
 
 DEPENDENCIES
 
@@ -44,19 +35,13 @@ For testing also
    Test::More        
    Test::Differences 
    Test::Exception   
+
    
 CHANGES ON gnubg
 
+Some parts of 
 gnubg 0.13.0 is bundled with this package.
-The source is original,
-I only added to "Makefile.am",
-some lines that also a static library "libgnubg.a"
-is compiled, too.
-
-I'm sorry that it is also necessary to download all gnubg stuff,
-also if you have already installed.
-It would be necessary that gnubg installes itselfs a shared library.
-But I think, we'll have to wait at least to gnubg 0.14 for it.
+You find some copied and pasted stuff from it in the *.xc files.
 
 
 COPYRIGHT AND LICENCE

@@ -8,18 +8,15 @@ require Exporter;
 
 our @ISA = qw(Exporter);
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 use List::Util qw/min max sum first/;
 use Data::Dumper;
 
 use Inline C       => 'DATA',
-           LIBS    => '-L../../../../Lgnubg -L../../../../gnubg/lib -lgnubg ' .
-                      '-Lgnubg -Lgnubg/lib',
-           INC     => "-I../../../../gnubg -I../../../../gnubg/lib",
+           INC     => '-I../../../../',
            NAME    => 'Games::Backgammon',
-           VERSION => '0.07',
-           MYEXTLIB => '../../../../gnubg/libgnubg.a';
+           VERSION => '0.08';
 
 use Carp;
 
@@ -73,6 +70,8 @@ sub set_position {
     $self->{whitepoints} = \%white;
     $self->{blackpoints} = \%black;
     $self->{atroll}      = $atroll;
+    
+    $self->{last_checker} = max grep {$self->{$atroll . "points"}->{$_}} (1 .. 24);
 }
 
 sub _checkers_in_play {
@@ -102,6 +101,17 @@ sub atroll {
     return $self->{atroll};
 }
 
+sub legal_moves { 
+    my ($self, $n1, $n2) = @_;
+    defined($n1) && defined($n2) or 
+        croak '$game->legal_moves(n1,n2) needs a defined roll';
+    @_ == 3 or croak '$game->legal_moves(n1,n2) needs exactly two arguments';
+    for ($n1, $n2) {
+        m/^(1|2|3|4|5|6)$/ or croak "($n1, $n2) is not a legal roll";
+    }
+    $self->__generate_moves($n1,$n2) 
+}
+
 1;
 
 =head1 NAME
@@ -122,11 +132,10 @@ Games::Backgammon - Perl extension for modelling backgammon games
 
   print "Position ID: ", $game->position_id;  
   print "Checkers off from white", $game->whitepoints('off');
+  print "Now you can do these moves: ", join " ", $game->legal_moves(2,1);
   
-  ## Not implemented yet
   
-  $game->manual_roll('6-5');
-  print "Now you can do these moves: ", join " ", $game->movelist;
+  [NOT IMPLEMENTED YET]
   
   $game->move('6-off 5-off');
   
@@ -250,6 +259,14 @@ Returns the position id of the current position from the view of the player
 at roll. This id is the same like generated from gnubg. Please look to the
 documentation of gnubg to get a detailed explanation.
 
+=item $game->legal_moves($n0, $n1)
+
+Returning a list of all legal moves in the current position
+with the roll ($n0, $n1).
+(just a wrapper to gnubg's GenerateMoves)
+A legal move is only represented by its string representation.
+It's already a shorted string version.
+
 =back
 
 =head2 EXPORT
@@ -273,14 +290,6 @@ Please feel free to suggest me anything you'll need.
 My next planned steps are:
 
 =over
-
-=item $game->legal_moves($n0, $n1)
-
-Returning a list of all legal moves in the current position
-with the roll ($n0, $n1).
-(just a wrapper to gnubg's GenerateMoves)
-Every move will be considered as a hash (or object) with a move description,
-the resulting board position, the moved checkers, used pips.
 
 =item Game::Backgammon::ideal_bearoff_position($pips)
 
@@ -317,8 +326,9 @@ Please read the COPYING file of this distributation for details.
 __DATA__
 __C__
 
-#include <errno.h>
-#include <positionid.h>
+#include "positionid.xc"
+#include "format_move.xc"
+#include "generate_moves.xc" 
 
 typedef struct {
     int anBoard[ 2 ][ 25 ];
@@ -375,4 +385,25 @@ char* position_id(HV* self) {
     gnubg_t *bg = (gnubg_t*) SvPV(*__sv,len);
 
     return PositionID(bg->anBoard);
+}
+
+void __generate_moves(HV* self, int n1, int n2) {
+    SV** __sv = hv_fetch(self,"__gnubg",7,0);
+    STRLEN len;
+    gnubg_t *bg = (gnubg_t*) SvPV(*__sv,len);
+    
+    movelist pml;
+    GenerateMoves(&pml, bg->anBoard, n1, n2, FALSE);
+    
+    Inline_Stack_Vars;
+    Inline_Stack_Reset;
+
+    int i,j;
+    char sz[20];
+    for (i = 0; i < pml.cMoves; i++) {
+        move* m = (pml.amMoves + i);
+        FormatMove(sz,bg->anBoard,m->anMove);
+        Inline_Stack_Push(sv_2mortal(newSVpv(sz,0)));
+    }
+    Inline_Stack_Done;
 }

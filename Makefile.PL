@@ -22,7 +22,7 @@ WriteMakefile(
       (ABSTRACT_FROM => 'Backgammon.pm', # retrieve abstract from module
        AUTHOR     => 'Janek Schleicher <bigj@kamelfreund.de>') : ()),
 );
-
+__END__
 print "Sorry, I have to compile the gnubg program, that can need some time :-(\n";
 
 if (-d gnubg) {

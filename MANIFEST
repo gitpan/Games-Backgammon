@@ -7,5 +7,8 @@ COPYING
 t/1.t
 t/set_position.t
 t/get_position_id.t
+t/legal_moves.t
 
-gnubg.tar
+positionid.xc
+generate_moves.xc
+format_move.xc

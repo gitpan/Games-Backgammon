@@ -32,3 +32,7 @@ Revision history for Perl extension Games::Backgammon.
         - bundled whole the source code of gnubg into this module
         - let create a static library "libgnubg.a" of them
           and use it with Inline::C
+
+0.08  Fri Feb 21
+        - use only the necessary part of gnubg source code (via Copy+Paste)
+        - implemented legal_moves method
