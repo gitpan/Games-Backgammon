@@ -23,3 +23,7 @@ Revision history for Perl extension Games::Backgammon.
         - changed including of header files, so that <assert.h> is included before <perl.h>
           (import that assert.h doesn't overwrite Perl's assert in older gcc's)
         - removed own defined macros
+
+0.06  Tue Feb 11
+        - tried to add as many possibilities to explain all different gcc versions
+          that assert.h is already included :-)

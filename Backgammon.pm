@@ -8,14 +8,14 @@ require Exporter;
 
 our @ISA = qw(Exporter);
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 use List::Util qw/min max sum first/;
 use Data::Dumper;
 use Inline C            => 'DATA',
            DISABLE      => 'CLEAN_AFTER_BUILD',
            NAME         => 'Games::Backgammon',
-           VERSION      => '0.05';
+           VERSION      => '0.06';
 use Carp;
 
 
@@ -312,6 +312,12 @@ __C__
    by simulating that this module is already loaded. :-)
 */
 #define __ASSERT_H
+#define  _ASSERT_H
+#define   ASSERT_H
+
+#define __assert_h
+#define  _assert_h
+#define   assert_h
 
 #include <errno.h>
 #include "gnubg/positionid.c"
