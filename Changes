@@ -41,3 +41,9 @@ Revision history for Perl extension Games::Backgammon.
        - removed assert commands from the c code part again :-(
          as there had been problems with some perl/gcc versions
        - removed dependency of Archive::Tar
+
+0.10  Thu Mar 6
+       - changed __generate_moves(HV*, int, int) to
+                 __generate_moves(HV*, SV*, SV*)
+         to avoid problems that occured with some perl/gcc versions
+       - incremented internal buffer for the moves
