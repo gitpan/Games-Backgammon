@@ -8,7 +8,7 @@ require Exporter;
 
 our @ISA = qw(Exporter);
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 use List::Util qw/min max sum first/;
 use Data::Dumper;
@@ -16,7 +16,7 @@ use Data::Dumper;
 use Inline C       => 'DATA',
            INC     => '-I../../../../',
            NAME    => 'Games::Backgammon',
-           VERSION => '0.11';
+           VERSION => '0.12';
 
 use Carp;
 
@@ -384,6 +384,7 @@ char* position_id(HV* self) {
 }
 
 void __generate_moves(HV* self, SV* sv_n1, SV* sv_n2) {
+    STRLEN len;
     SV** __sv;
     gnubg_t *bg;
     int i,j;
@@ -396,7 +397,6 @@ void __generate_moves(HV* self, SV* sv_n1, SV* sv_n2) {
     Inline_Stack_Reset;
 
     __sv = hv_fetch(self,"__gnubg",7,0);
-    STRLEN len;
     bg = (gnubg_t*) SvPV(*__sv,len);
     
     n1 = SvIV(sv_n1);

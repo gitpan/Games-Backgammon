@@ -51,3 +51,7 @@ Revision history for Perl extension Games::Backgammon.
 0.11  Fri Mar 7
        - moved Inline_Stack_Vars and Inline_Stack_Reset macros to the top
          in the used functions
+
+0.12 Fri Mar 7
+       - removed a variable definition to have a good work with
+         Inline_Stack_Vars and Inline_Stack_Reset macros
