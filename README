@@ -1,4 +1,4 @@
-Games/Backgammon version 0.12
+Games/Backgammon version 0.13
 =============================
 
 This module helps to analyze and modelling backgammon games. 
@@ -34,6 +34,8 @@ For testing also
    Test::More        
    Test::Differences 
    Test::Exception   
+   Test::Warn
+   Set::Scalar
 
    
 CHANGES ON gnubg

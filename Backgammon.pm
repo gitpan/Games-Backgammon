@@ -8,7 +8,7 @@ require Exporter;
 
 our @ISA = qw(Exporter);
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 use List::Util qw/min max sum first/;
 use Data::Dumper;
@@ -16,7 +16,7 @@ use Data::Dumper;
 use Inline C       => 'DATA',
            INC     => '-I../../../../',
            NAME    => 'Games::Backgammon',
-           VERSION => '0.12';
+           VERSION => '0.13';
 
 use Carp;
 

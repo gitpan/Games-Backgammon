@@ -55,3 +55,6 @@ Revision history for Perl extension Games::Backgammon.
 0.12 Fri Mar 7
        - removed a variable definition to have a good work with
          Inline_Stack_Vars and Inline_Stack_Reset macros
+
+0.13 Sat Mar 8
+       - added Set::Scalar module to the dependencies
