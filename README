@@ -1,4 +1,4 @@
-Games/Backgammon version 0.08
+Games/Backgammon version 0.09
 =============================
 
 This module helps to analyze and modelling backgammon games. 
@@ -28,7 +28,6 @@ This module requires these other modules and libraries:
    List::Util        1.07,
    Carp              
    Data::Dumper      
-   Archive::Tar   
 
 For testing also
 

@@ -33,6 +33,11 @@ Revision history for Perl extension Games::Backgammon.
         - let create a static library "libgnubg.a" of them
           and use it with Inline::C
 
-0.08  Fri Feb 21
+0.08  Tue Mar 4
         - use only the necessary part of gnubg source code (via Copy+Paste)
         - implemented legal_moves method
+
+0.09  Tue Mar 4
+       - removed assert commands from the c code part again :-(
+         as there had been problems with some perl/gcc versions
+       - removed dependency of Archive::Tar

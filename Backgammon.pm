@@ -8,7 +8,7 @@ require Exporter;
 
 our @ISA = qw(Exporter);
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 use List::Util qw/min max sum first/;
 use Data::Dumper;
@@ -16,7 +16,7 @@ use Data::Dumper;
 use Inline C       => 'DATA',
            INC     => '-I../../../../',
            NAME    => 'Games::Backgammon',
-           VERSION => '0.08';
+           VERSION => '0.09';
 
 use Carp;
 
@@ -357,14 +357,10 @@ void __set_position(HV* self, AV* a) {
     STRLEN len;                               
     gnubg_t *bg = (gnubg_t*) SvPV(*__sv,len);
 
-    assert(SvTYPE(a) == SVt_PVAV);
-    
     int i,j;    
     for (i = 0; i < 2; i++) {
         for (j = 0; j < 25; j++) {
             SV** sv = av_fetch(a,25*i + j,0);
-            assert(SvOK(*sv));
-            assert(SvTYPE(*sv) == SVt_IV);
             bg->anBoard[ i ][ j ] = SvIV(*sv);
         }
     }

@@ -157,7 +157,6 @@ static void SaveMoves( movelist *pml, int cMoves, int cPip, int anMoves[],
     
     pml->cMoves++;
 
-    assert( pml->cMoves < MAX_INCOMPLETE_MOVES );
 }
 
 ApplySubMove( int anBoard[ 2 ][ 25 ], 

@@ -1,7 +1,5 @@
 static char *FormatPoint( char *pch, int n ) {
 
-    assert( n >= 0 );
-    
     if( !n ) {
         strcpy( pch, "off" );
         return pch + 3;
@@ -18,8 +16,6 @@ static char *FormatPoint( char *pch, int n ) {
 
 static char *FormatPointPlain( char *pch, int n ) {
 
-    assert( n >= 0 );
-    
     if( n > 9 )
         *pch++ = n / 10 + '0';
 

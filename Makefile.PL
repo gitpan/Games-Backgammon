@@ -11,7 +11,6 @@ WriteMakefile(
         Inline            => 0.44,
         Carp              => 0,
         Data::Dumper      => 0,
-        Archive::Tar      => 0,
 
         Test::More        => 0,
         Test::Differences => 0.45,
